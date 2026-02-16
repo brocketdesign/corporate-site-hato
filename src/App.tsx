@@ -1,3 +1,4 @@
+import Header from './sections/Header'
 import Hero from './sections/Hero'
 import About from './sections/About'
 import Services from './sections/Services'
@@ -10,6 +11,7 @@ import Footer from './sections/Footer'
 function App() {
   return (
     <main className="w-full min-h-screen bg-[#f0f0f0] overflow-x-hidden">
+      <Header />
       <Hero />
       <About />
       <Services />

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Twitter, Linkedin, Github } from 'lucide-react';
+import { Twitter, Linkedin, Github, MapPin } from 'lucide-react';
 
 const Footer = () => {
   const footerRef = useRef<HTMLElement>(null);
@@ -74,13 +74,27 @@ const Footer = () => {
               AIが導く、新しい世界
             </p>
             <p
-              className={`text-[#bcbcbc] text-sm leading-relaxed transition-all duration-500 ${
+              className={`text-[#bcbcbc] text-sm leading-relaxed mb-4 transition-all duration-500 ${
                 isVisible ? 'opacity-100' : 'opacity-0'
               }`}
               style={{ transitionDelay: '300ms' }}
             >
               最先端のAI技術で、ビジネスの未来を創造する
             </p>
+            {/* Address */}
+            <div
+              className={`flex items-start gap-2 transition-all duration-500 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+              }`}
+              style={{ transitionDelay: '400ms' }}
+            >
+              <MapPin className="w-4 h-4 text-[#a1f65e] flex-shrink-0 mt-0.5" />
+              <p className="text-[#a1a1a1] text-xs leading-relaxed">
+                〒530-0001<br />
+                大阪府大阪市北区梅田1-2-2<br />
+                大阪駅前第2ビル12-12
+              </p>
+            </div>
           </div>
 
           {/* Services Column */}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const Contact = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -12,6 +12,7 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -41,21 +42,41 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setSubmitted(true);
-    setFormData({ name: '', email: '', company: '', message: '' });
+    setError(null);
+
+    try {
+      // Determine API endpoint based on environment
+      const apiUrl = import.meta.env.VITE_API_URL || '/api/contact';
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'メールの送信に失敗しました');
+      }
+
+      setSubmitted(true);
+      setFormData({ name: '', email: '', company: '', message: '' });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'エラーが発生しました');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
     {
       icon: <Mail className="w-5 h-5" />,
       label: 'メール',
-      value: 'info@hatoltd.com',
-      href: 'mailto:info@hatoltd.com',
+      value: 'contact@hatoltd.com',
+      href: 'mailto:contact@hatoltd.com',
     },
     {
       icon: <Phone className="w-5 h-5" />,
@@ -65,9 +86,10 @@ const Contact = () => {
     },
     {
       icon: <MapPin className="w-5 h-5" />,
-      label: '住所',
-      value: '東京都○○区○○町X-X-X',
-      href: '#',
+      label: '本店住所',
+      value: '大阪府大阪市北区梅田1-2-2 大阪駅前第2ビル12-12',
+      displayValue: '大阪府大阪市北区梅田\n1-2-2 大阪駅前第2ビル12-12',
+      href: 'https://maps.google.com/?q=大阪府大阪市北区梅田1丁目2番2号',
     },
   ];
 
@@ -138,15 +160,17 @@ const Contact = () => {
                 >
                   <a
                     href={item.href}
-                    className="flex items-center gap-4 group"
+                    target={item.label === '本店住所' ? '_blank' : undefined}
+                    rel={item.label === '本店住所' ? 'noopener noreferrer' : undefined}
+                    className="flex items-start gap-4 group"
                   >
-                    <div className="w-12 h-12 rounded-lg bg-[#2c323a] flex items-center justify-center text-[#a1f65e] group-hover:bg-[#a1f65e] group-hover:text-[#1d2229] transition-all duration-300">
+                    <div className="w-12 h-12 rounded-lg bg-[#2c323a] flex items-center justify-center text-[#a1f65e] group-hover:bg-[#a1f65e] group-hover:text-[#1d2229] transition-all duration-300 flex-shrink-0">
                       {item.icon}
                     </div>
                     <div>
                       <p className="text-sm text-[#bcbcbc]">{item.label}</p>
-                      <p className="text-white font-medium group-hover:text-[#a1f65e] transition-colors duration-300">
-                        {item.value}
+                      <p className="text-white font-medium group-hover:text-[#a1f65e] transition-colors duration-300 whitespace-pre-line">
+                        {item.displayValue || item.value}
                       </p>
                     </div>
                   </a>
@@ -187,7 +211,7 @@ const Contact = () => {
             {submitted ? (
               <div className="h-full flex flex-col items-center justify-center text-center py-12">
                 <div className="w-20 h-20 rounded-full bg-[#a1f65e]/20 flex items-center justify-center mb-6">
-                  <Send className="w-10 h-10 text-[#a1f65e]" />
+                  <CheckCircle2 className="w-10 h-10 text-[#a1f65e]" />
                 </div>
                 <h3 className="text-2xl font-bold text-[#1d2229] mb-4">
                   お問い合わせありがとうございます
@@ -204,6 +228,16 @@ const Contact = () => {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Error Message */}
+                {error && (
+                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-red-700 text-sm">{error}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Name */}
                   <div

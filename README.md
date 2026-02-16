@@ -1,73 +1,72 @@
-# React + TypeScript + Vite
+# 合同会社はと
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+最先端のAI技術で、ビジネスの未来を創造するデジタルソリューション企業です。
 
-Currently, two official plugins are available:
+## 企業概要
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+合同会社はとは、AI技術を核としたデジタルソリューションを提供するテクノロジー企業です。最新の技術と創造的な発想で、お客様のビジネス課題を解決し、新たな価値を創造します。
 
-## React Compiler
+### 実績
+- **150+** 導入企業
+- **98%** 顧客満足度
+- **5+** 年の実績
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## サービス
 
-## Expanding the ESLint configuration
+### AIアプリケーション開発
+機械学習と深層学習を活用した、業界特化型AIアプリケーションの開発
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### データ分析・予測
+ビッグデータを活用した洞察と、正確な将来予測で意思決定を支援
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### システムインテグレーション
+既存システムとAIのシームレスな連携で、スムーズなデジタル変革を実現
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### コンサルティング
+AI導入戦略の立案から運用サポートまで、包括的なコンサルティング
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## プロダクト
+
+### 生成 (Seisei) - AI Creative Platform
+AIが生み出す、無限のクリエイティブ
+- テキストから画像生成
+- 自動文章作成
+- マルチリンガル対応
+
+🔗 [https://www.seisei.me](https://www.seisei.me)
+
+### 楽アド (Rakuado) - Ad Network Platform
+広告運用を、もっと簡単に
+- 自動入札調整
+- パフォーマンス分析
+- 予算最適化
+
+🔗 [https://app.rakuado.net](https://app.rakuado.net)
+
+## 技術スタック
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+
+## 開発
+
+```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバーの起動
+npm run dev
+
+# ビルド
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## お問い合わせ
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+サービスに関するお問い合わせは、ウェブサイトのお問い合わせフォームからお願いいたします。
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+© 2026 合同会社はと. All rights reserved.

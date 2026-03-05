@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ExternalLink, Sparkles, TrendingUp, Zap, BarChart2, Shield } from 'lucide-react';
+import { ExternalLink, Sparkles, TrendingUp, Zap, BarChart2, Shield, PenTool, Globe, Calendar } from 'lucide-react';
 
 const Products = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -33,6 +33,12 @@ const Products = () => {
     { icon: <TrendingUp className="w-5 h-5" />, text: '自動入札調整' },
     { icon: <BarChart2 className="w-5 h-5" />, text: 'パフォーマンス分析' },
     { icon: <Shield className="w-5 h-5" />, text: '予算最適化' },
+  ];
+
+  const rakubunFeatures = [
+    { icon: <PenTool className="w-5 h-5" />, text: 'AI自動記事作成' },
+    { icon: <Globe className="w-5 h-5" />, text: 'WordPress自動連携' },
+    { icon: <Calendar className="w-5 h-5" />, text: 'スケジュール自動公開' },
   ];
 
   return (
@@ -204,6 +210,79 @@ const Products = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-l from-transparent to-[#2c323a]/20" />
             </div>
+          </div>
+        </div>
+
+        {/* Product 3: RakuBun */}
+        <div className="grid lg:grid-cols-2 gap-0 mt-20 rounded-3xl overflow-hidden shadow-2xl">
+          {/* Image */}
+          <div
+            className={`relative overflow-hidden transition-all duration-1000 ${
+              isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-24'
+            }`}
+            style={{ transitionDelay: '600ms', transitionTimingFunction: 'var(--ease-expo-out)' }}
+          >
+            <div className="relative h-[400px] lg:h-full">
+              <img
+                src="/product-rakubun.png"
+                alt="楽文 (RakuBun) - AI Auto-Publishing Platform"
+                className="w-full h-full object-cover transition-transform duration-600 hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1a1a2e]/20" />
+            </div>
+          </div>
+
+          {/* Content */}
+          <div
+            className={`bg-[#1a1a2e] p-8 lg:p-12 flex flex-col justify-center transition-all duration-800 ${
+              isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-24'
+            }`}
+            style={{ transitionDelay: '800ms', transitionTimingFunction: 'var(--ease-expo-out)' }}
+          >
+            <div className="mb-2">
+              <span className="text-[#a78bfa] text-sm font-semibold tracking-wider uppercase">
+                AI Auto-Publishing Platform
+              </span>
+            </div>
+            <h3 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+              楽文 <span className="text-[#a78bfa]">(RakuBun)</span>
+            </h3>
+            <p className="text-xl text-white/80 mb-2">
+              ブログ運営を、完全自動化
+            </p>
+            <p className="text-[#bcbcbc] mb-8 leading-relaxed">
+              AIがサイトを分析し、トレンドをリサーチし、最適化された記事を自動公開。WordPress連携でセットアップは数分。コンテンツ戦略からSEO対策、画像生成まですべて自動で行います。
+            </p>
+
+            {/* Features */}
+            <ul className="space-y-3 mb-8">
+              {rakubunFeatures.map((feature, index) => (
+                <li
+                  key={index}
+                  className={`flex items-center gap-3 text-white/90 transition-all duration-500 ${
+                    isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+                  }`}
+                  style={{ transitionDelay: `${1000 + index * 100}ms` }}
+                >
+                  <span className="text-[#a78bfa]">{feature.icon}</span>
+                  <span>{feature.text}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <a
+              href="https://rakubun.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`inline-flex items-center gap-2 bg-[#a78bfa] text-white px-6 py-3 rounded-lg font-semibold w-fit transition-all duration-400 hover:bg-[#8b5cf6] hover:scale-105 ${
+                isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-80'
+              }`}
+              style={{ transitionDelay: '1300ms', transitionTimingFunction: 'var(--ease-elastic)' }}
+            >
+              <span>詳しく見る</span>
+              <ExternalLink className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </div>

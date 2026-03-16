@@ -1,13 +1,15 @@
 /*
- * Referral popup widget v1.2.0
+ * Referral popup widget v1.3.0
  * - Fetches enabled Yahoo popups from backend
  * - Stage 1: Non-intrusive bottom popup (3s delay, 20s display time) - SEO friendly
  * - Stage 2: Full-screen overlay (5s skip timer) if Stage 1 not clicked - Intrusive fallback
+ * - Email Stage: Email capture form on return visits (after first interaction)
+ * - Stage 2 also includes inline email form
  * - Persists per-slug cookies so refreshed pages skip shown popups
- * - Triggers backgroundOpen on user click/interaction
+ * - Triggers backgroundOpen on user click/interaction (first interaction ALWAYS triggers affiliate redirect)
  */
 (function() {
-  console.log('Referral popup widget version: v1.2.0');
+  console.log('Referral popup widget version: v1.3.0');
 
   const DEBUG_PREFIX = '[ReferalPopup]';
 
@@ -87,9 +89,12 @@
         REFERAL_API_URL: 'https://rakuado-43706e27163e.herokuapp.com/api/referal',
         COOKIE_EXPIRY_HOURS: 24,
         COOKIE_PREFIX: 'referal-opened-',
+        COOKIE_EMAIL_PREFIX: 'referal-email-',
+        EMAIL_FORM_ACTION: 'https://app.rakuado.net/api/mailing-lists/subscribe/69b7450039dc17c081ec347f',
         STAGE1_DELAY_MS: 3000,      // Stage 1 appears after 3s page load
         STAGE1_DISPLAY_MS: 20000,   // Stage 1 visible for 20s
-        STAGE2_SKIP_MS: 5000        // Stage 2 skip button becomes clickable after 5s
+        STAGE2_SKIP_MS: 5000,       // Stage 2 skip button becomes clickable after 5s
+        EMAIL_STAGE_DELAY_MS: 2000  // Email Stage appears after 2s on return visits
       };
 
       const YAHOO_PRESET = {
@@ -111,6 +116,9 @@
         stage2Shadow: null,
         stage2SkipTimeoutId: null,
         stage2SkipCounter: null,
+        emailStageRoot: null,
+        emailStageShadow: null,
+        emailStageTimeoutId: null,
         interacted: false,
         processingInteraction: false  // Lock to prevent concurrent interactions
       };
@@ -172,29 +180,40 @@
                 return snapshot;
               });
 
-            const filtered = enriched.filter(p => {
+            // Separate popups into: not yet opened (Stage 1/2 flow) vs opened but no email (Email Stage)
+            const notOpened = [];
+            const needsEmail = [];
+
+            enriched.forEach(p => {
               const alreadyOpened = hasOpened(p.slug);
-              log('Filter check', { popupId: p._id, slug: p.slug, alreadyOpened });
-              return !alreadyOpened;
+              const emailSubmitted = hasSubmittedEmail(p.slug);
+              log('Filter check', { popupId: p._id, slug: p.slug, alreadyOpened, emailSubmitted });
+              if (!alreadyOpened) {
+                notOpened.push(p);
+              } else if (!emailSubmitted) {
+                needsEmail.push(p);
+              }
             });
 
             log('Filtered popups summary', {
               total: enriched.length,
-              eligible: filtered.length,
-              filteredIds: filtered.map(p => p._id)
+              notOpened: notOpened.length,
+              needsEmail: needsEmail.length
             });
 
-            if (filtered.length === 0) {
-              log('All Yahoo popups already opened');
-              return;
+            if (notOpened.length > 0) {
+              // First-time visit: show Stage 1 → Stage 2 flow
+              const popup = notOpened[0];
+              log('Selected popup for Stage 1 display', { popupId: popup._id, slug: popup.slug });
+              scheduleStage1(popup);
+            } else if (needsEmail.length > 0) {
+              // Return visit: already interacted but no email submitted → show Email Stage
+              const popup = needsEmail[0];
+              log('Selected popup for Email Stage', { popupId: popup._id, slug: popup.slug });
+              scheduleEmailStage(popup);
+            } else {
+              log('All Yahoo popups fully completed (opened + email)');
             }
-
-            // Use first eligible popup
-            const popup = filtered[0];
-            log('Selected popup for display', { popupId: popup._id, slug: popup.slug });
-
-            // Schedule Stage 1 display
-            scheduleStage1(popup);
           })
           .catch(err => error('Failed to fetch enabled popups', err));
       }
@@ -210,6 +229,20 @@
       function markOpened(slug) {
         const cookieKey = CONFIG.COOKIE_PREFIX + slug;
         log('Persisting opened slug', { slug, cookieKey });
+        setCookie(cookieKey, 'true', { expires: CONFIG.COOKIE_EXPIRY_HOURS / 24, path: '/' });
+      }
+
+      function hasSubmittedEmail(slug) {
+        const cookieKey = CONFIG.COOKIE_EMAIL_PREFIX + slug;
+        const rawValue = getCookie(cookieKey);
+        const submitted = Boolean(rawValue);
+        log('Checking email cookie status', { slug, cookieKey, rawValue, submitted });
+        return submitted;
+      }
+
+      function markEmailSubmitted(slug) {
+        const cookieKey = CONFIG.COOKIE_EMAIL_PREFIX + slug;
+        log('Persisting email submitted slug', { slug, cookieKey });
         setCookie(cookieKey, 'true', { expires: CONFIG.COOKIE_EXPIRY_HOURS / 24, path: '/' });
       }
 
@@ -493,6 +526,326 @@
         state.stage1Shadow = null;
       }
 
+      /* --------------------
+         Email Stage (return visits)
+         -------------------- */
+
+      function scheduleEmailStage(popup) {
+        state.currentPopup = popup;
+        log('Scheduling Email Stage display', {
+          delay: CONFIG.EMAIL_STAGE_DELAY_MS,
+          popupId: popup._id
+        });
+
+        state.emailStageTimeoutId = window.setTimeout(() => {
+          log('Displaying Email Stage popup', { popupId: popup._id });
+          renderEmailStage(popup);
+        }, CONFIG.EMAIL_STAGE_DELAY_MS);
+      }
+
+      function getEmailFormStyles() {
+        return `
+          .email-form {
+            margin-top: 16px;
+            text-align: left;
+          }
+          .email-form h4 {
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: #1f2937;
+            margin: 0 0 8px 0;
+            line-height: 1.4;
+          }
+          .email-form .email-desc {
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 400;
+            font-size: 13px;
+            color: #6b7280;
+            margin: 0 0 12px 0;
+            line-height: 1.5;
+          }
+          .email-form .email-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+          }
+          .email-form .email-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 14px;
+            color: #1f2937;
+            outline: none;
+            transition: border-color 0.2s ease;
+          }
+          .email-form .email-input:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+          }
+          .email-form .email-input::placeholder {
+            color: #9ca3af;
+          }
+          .email-form .email-submit {
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+          }
+          .email-form .email-submit:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.25);
+          }
+          .email-form .email-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+          }
+          .email-form .privacy-text {
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 400;
+            font-size: 11px;
+            color: #9ca3af;
+            margin: 0;
+            line-height: 1.5;
+          }
+          .email-form .email-status {
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 13px;
+            margin: 8px 0 0 0;
+            line-height: 1.4;
+          }
+          .email-form .email-status.success {
+            color: #10b981;
+          }
+          .email-form .email-status.error {
+            color: #ef4444;
+          }
+          @media (max-width: 640px) {
+            .email-form .email-row {
+              flex-direction: column;
+            }
+            .email-form .email-submit {
+              width: 100%;
+            }
+          }
+        `;
+      }
+
+      function buildEmailFormHTML(accent) {
+        return `
+          <div class="email-form">
+            <h4>\uD83E\uDD16 AI\u304C\u6700\u9069\u306A\u30AF\u30FC\u30DD\u30F3\u3092\u6BCE\u9031\u304A\u5C4A\u3051\u3057\u307E\u3059</h4>
+            <p class="email-desc">\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u3092\u3054\u767B\u9332\u3044\u305F\u3060\u304F\u3068\u3001AI\u304C\u3042\u306A\u305F\u306B\u5408\u3063\u305F\u304A\u5F97\u306A\u30AF\u30FC\u30DD\u30F3\u3092\u898B\u3064\u3051\u3066\u9031\u306B1\u56DE\u304A\u77E5\u3089\u305B\u3057\u307E\u3059\u3002</p>
+            <div class="email-row">
+              <input type="email" class="email-input" placeholder="\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u3092\u5165\u529B" required />
+              <button type="button" class="email-submit" style="background: linear-gradient(90deg, ${accent}, ${shadeColor(accent, -10)});">
+                \u767B\u9332\u3059\u308B
+              </button>
+            </div>
+            <p class="privacy-text">\uD83D\uDD12 \u3054\u767B\u9332\u3044\u305F\u3060\u3044\u305F\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u306F\u3001\u30AF\u30FC\u30DD\u30F3\u60C5\u5831\u306E\u304A\u5C4A\u3051\u306E\u307F\u306B\u4F7F\u7528\u3057\u307E\u3059\u3002\u7B2C\u4E09\u8005\u3078\u306E\u63D0\u4F9B\u30FB\u8CA9\u58F2\u3001\u305D\u306E\u4ED6\u306E\u76EE\u7684\u3067\u306E\u5229\u7528\u306F\u4E00\u5207\u3044\u305F\u3057\u307E\u305B\u3093\u3002</p>
+            <div class="email-status" style="display:none;"></div>
+          </div>
+        `;
+      }
+
+      function handleEmailSubmit(emailInput, submitBtn, statusEl, popup, onSuccess) {
+        const email = emailInput.value.trim();
+        if (!email) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = '\u9001\u4FE1\u4E2D...';
+        statusEl.style.display = 'none';
+
+        const body = new URLSearchParams();
+        body.append('email', email);
+        body.append('tag', 'popup-widget');
+        body.append('domain', window.location.hostname);
+
+        fetch(CONFIG.EMAIL_FORM_ACTION, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString()
+        })
+          .then(res => res.json().then(data => ({ status: res.status, data })))
+          .then(({ status, data }) => {
+            if (data && data.success) {
+              log('Email submitted successfully', { email: '***', slug: popup.slug, message: data.message });
+              markEmailSubmitted(popup.slug);
+              statusEl.textContent = '\u2705 \u767B\u9332\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\uFF01\u304A\u5F97\u306A\u30AF\u30FC\u30DD\u30F3\u3092\u304A\u5C4A\u3051\u3057\u307E\u3059\u3002';
+              statusEl.className = 'email-status success';
+              statusEl.style.display = 'block';
+              if (onSuccess) onSuccess();
+            } else {
+              throw new Error((data && data.error) || 'Server returned ' + status);
+            }
+          })
+          .catch(err => {
+            warn('Email submit failed', err);
+            statusEl.textContent = '\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F\u3002\u3082\u3046\u4E00\u5EA6\u304A\u8A66\u3057\u304F\u3060\u3055\u3044\u3002';
+            statusEl.className = 'email-status error';
+            statusEl.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = '\u767B\u9332\u3059\u308B';
+          });
+      }
+
+      function renderEmailStage(popup) {
+        const host = document.createElement('div');
+        host.id = 'referal-popup-email-host';
+        host.style.position = 'fixed';
+        host.style.left = '20px';
+        host.style.bottom = '20px';
+        host.style.zIndex = '2147483647';
+        host.style.width = 'auto';
+        host.style.maxWidth = '420px';
+        host.style.pointerEvents = 'none';
+        document.body.appendChild(host);
+
+        const shadow = host.attachShadow({ mode: 'open' });
+        const style = document.createElement('style');
+        style.textContent = `
+          :host {
+            all: initial;
+          }
+          *, *::before, *::after {
+            box-sizing: border-box;
+          }
+          .email-popup {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            pointer-events: auto;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+          }
+          @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+          .email-popup .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+          }
+          .email-popup .logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            object-fit: contain;
+            flex-shrink: 0;
+            background: #fff;
+          }
+          .email-popup .header-title {
+            font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: #1f2937;
+            margin: 0;
+            flex: 1;
+          }
+          .email-popup .close-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 9999px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: rgba(248, 250, 252, 0.95);
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease;
+            flex-shrink: 0;
+            font-size: 16px;
+            line-height: 1;
+          }
+          .email-popup .close-btn:hover {
+            background: rgba(226, 232, 240, 0.95);
+            color: #1f2937;
+          }
+          ${getEmailFormStyles()}
+          @media (max-width: 640px) {
+            :host {
+              left: 12px !important;
+              right: 12px !important;
+              max-width: none !important;
+            }
+            .email-popup {
+              width: calc(100vw - 24px);
+            }
+          }
+        `;
+
+        shadow.appendChild(style);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'email-popup';
+        shadow.appendChild(wrapper);
+
+        const accent = YAHOO_PRESET.accentHex;
+
+        wrapper.innerHTML = `
+          <div class="header">
+            <img class="logo" src="${YAHOO_PRESET.logoUrl}" alt="${YAHOO_PRESET.siteName} logo" />
+            <span class="header-title">${YAHOO_PRESET.siteName}</span>
+            <button class="close-btn" type="button" aria-label="\u9589\u3058\u308B">\u00D7</button>
+          </div>
+          ${buildEmailFormHTML(accent)}
+        `;
+
+        const closeBtn = wrapper.querySelector('.close-btn');
+        const emailInput = wrapper.querySelector('.email-input');
+        const submitBtn = wrapper.querySelector('.email-submit');
+        const statusEl = wrapper.querySelector('.email-status');
+
+        closeBtn.addEventListener('click', () => {
+          log('Email Stage: User closed without submitting');
+          dismissEmailStage();
+        });
+
+        submitBtn.addEventListener('click', () => {
+          handleEmailSubmit(emailInput, submitBtn, statusEl, popup, () => {
+            // Auto-dismiss after success
+            window.setTimeout(() => dismissEmailStage(), 2000);
+          });
+        });
+
+        emailInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleEmailSubmit(emailInput, submitBtn, statusEl, popup, () => {
+              window.setTimeout(() => dismissEmailStage(), 2000);
+            });
+          }
+        });
+
+        state.emailStageRoot = host;
+        state.emailStageShadow = shadow;
+      }
+
+      function dismissEmailStage() {
+        if (state.emailStageTimeoutId) {
+          window.clearTimeout(state.emailStageTimeoutId);
+          state.emailStageTimeoutId = null;
+        }
+        if (state.emailStageRoot && state.emailStageRoot.parentNode) {
+          log('Dismissing Email Stage popup');
+          state.emailStageRoot.parentNode.removeChild(state.emailStageRoot);
+        }
+        state.emailStageRoot = null;
+        state.emailStageShadow = null;
+      }
+
       function scheduleStage2(popup) {
         if (state.interacted) {
           log('User already interacted, skipping Stage 2');
@@ -616,6 +969,16 @@
             color: #9ca3af;
             margin-top: 8px;
           }
+          .modal-divider {
+            width: 100%;
+            height: 1px;
+            background: #e5e7eb;
+            margin: 24px 0 16px 0;
+          }
+          ${getEmailFormStyles()}
+          .email-form {
+            text-align: left;
+          }
           @media (max-width: 640px) {
             .modal-container {
               padding: 24px;
@@ -652,6 +1015,8 @@
             </button>
           </div>
           <div class="skip-countdown" id="countdown"></div>
+          <div class="modal-divider"></div>
+          ${buildEmailFormHTML(accent)}
         `;
 
         state.stage2Root = overlay;
@@ -724,6 +1089,38 @@
 
         skipBtn.addEventListener('click', handleClose);
         ctaBtn.addEventListener('click', handleCTA);
+
+        // Email form handler in Stage 2
+        const s2EmailInput = wrapper.querySelector('.email-input');
+        const s2SubmitBtn = wrapper.querySelector('.email-submit');
+        const s2StatusEl = wrapper.querySelector('.email-status');
+
+        const handleStage2Email = () => {
+          handleEmailSubmit(s2EmailInput, s2SubmitBtn, s2StatusEl, popup, () => {
+            // CRITICAL: If this is the user's first interaction, trigger backgroundOpen
+            if (!state.interacted) {
+              log('Stage 2: Email submit is first interaction - triggering backgroundOpen');
+              state.interacted = true;
+              markOpened(popup.slug);
+              // Delay dismissal slightly so user sees success, then redirect
+              window.setTimeout(() => {
+                dismissStage2();
+                backgroundOpen(popup._id, popup.targetUrl, popup.slug);
+              }, 1500);
+            } else {
+              // backgroundOpen already fired (user clicked CTA/skip first), just dismiss
+              window.setTimeout(() => dismissStage2(), 2000);
+            }
+          });
+        };
+
+        s2SubmitBtn.addEventListener('click', handleStage2Email);
+        s2EmailInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleStage2Email();
+          }
+        });
       }
 
       function dismissStage2() {

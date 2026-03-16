@@ -18,3 +18,5 @@ yarn-error.log*
 .cache
 .next
 out
+# backup files
+*.backup*

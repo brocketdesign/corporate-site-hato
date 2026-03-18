@@ -1,6 +1,6 @@
 /*
- * Referral popup widget v1.3.0
- * - Fetches enabled Yahoo popups from backend
+ * Referral popup widget v1.4.0
+ * - Fetches all enabled popups from backend
  * - Stage 1: Non-intrusive bottom popup (3s delay, 20s display time) - SEO friendly
  * - Stage 2: Full-screen overlay (5s skip timer) if Stage 1 not clicked - Intrusive fallback
  * - Email Stage: Email capture form on return visits (after first interaction)
@@ -9,7 +9,7 @@
  * - Triggers backgroundOpen on user click/interaction (first interaction ALWAYS triggers affiliate redirect)
  */
 (function() {
-  console.log('Referral popup widget version: v1.3.0');
+  console.log('Referral popup widget version: v1.4.0');
 
   const DEBUG_PREFIX = '[ReferalPopup]';
 
@@ -97,12 +97,13 @@
         EMAIL_STAGE_DELAY_MS: 2000  // Email Stage appears after 2s on return visits
       };
 
-      const YAHOO_PRESET = {
-        siteName: 'Yahoo!ショッピング',
+      const AI_SERVICE = {
+        serviceName: 'RakuAdo — AIクーポンファインダー',
         extraDays: 3,
-        headline: 'Yahoo!ショッピングで50%オフクーポンをゲット！',
-        accentHex: '#ef4444',
-        logoUrl: 'https://hatoltd.com/affiliate-partner/yahoo-logo.png'
+        headline: 'AIが人気サイトのお得情報を自動発見！',
+        subtext: 'Yahoo・TikTok・Temu など主要サイトを毎日チェック',
+        accentHex: '#6366f1',
+        logoUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='24' fill='%236366f1'/%3E%3Cpath d='M24 12l3 6.5L34 22l-7 3.5L24 32l-3-6.5L14 22l7-3.5z' fill='%23fff'/%3E%3Cpath d='M35 9l1.5 3L40 13.5l-3.5 1.5L35 18l-1.5-3L30 13.5l3.5-1.5z' fill='%23fff' opacity='.7'/%3E%3C/svg%3E"
       };
 
       const state = {
@@ -160,18 +161,7 @@
               return;
             }
 
-            // Only use Yahoo popups
-            const yahooPopups = popups.filter(p => {
-              const slug = normalizeSlug(p.slug);
-              return slug && slug.includes('yahoo');
-            });
-
-            if (yahooPopups.length === 0) {
-              log('No Yahoo popups available');
-              return;
-            }
-
-            const enriched = yahooPopups
+            const enriched = popups
               .filter(Boolean)
               .map(p => {
                 const resolvedSlug = resolveSlug(p);
@@ -212,7 +202,7 @@
               log('Selected popup for Email Stage', { popupId: popup._id, slug: popup.slug });
               scheduleEmailStage(popup);
             } else {
-              log('All Yahoo popups fully completed (opened + email)');
+              log('All popups fully completed (opened + email)');
             }
           })
           .catch(err => error('Failed to fetch enabled popups', err));
@@ -303,7 +293,7 @@
           }
           .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ef4444, #dc2626);
+            background: linear-gradient(90deg, #6366f1, #4f46e5);
             width: 100%;
             animation: depleteBar 20s linear forwards;
           }
@@ -354,7 +344,7 @@
             font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
             font-weight: 600;
             font-size: 12px;
-            color: #ef4444;
+            color: #6366f1;
             margin-top: 4px;
             white-space: nowrap;
           }
@@ -378,7 +368,7 @@
           }
           .cta-primary:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.25);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
           }
           .cta-close {
             width: 28px;
@@ -443,18 +433,17 @@
         progressContainer.appendChild(progressFill);
         wrapper.appendChild(progressContainer);
 
-        const expirationDate = buildExpirationDate(YAHOO_PRESET.extraDays);
-        const accent = YAHOO_PRESET.accentHex;
+        const accent = AI_SERVICE.accentHex;
 
         const container = document.createElement('div');
         container.className = 'cta-button bounce';
         container.dataset.slug = popup.slug;
 
         container.innerHTML = `
-          <img class="logo" src="${YAHOO_PRESET.logoUrl}" alt="Yahoo!ショッピング logo" />
+          <img class="logo" src="${AI_SERVICE.logoUrl}" alt="${AI_SERVICE.serviceName}" />
           <div class="cta-info">
-            <h4>${YAHOO_PRESET.headline}</h4>
-            <div class="countdown">有効期限: ${expirationDate}（残り <span id="timer">20</span>秒）</div>
+            <h4>${AI_SERVICE.headline}</h4>
+            <div class="countdown">${AI_SERVICE.subtext}（残り <span id="timer">20</span>秒）</div>
           </div>
           <div class="cta-actions">
             <button class="cta-primary" type="button" style="background: linear-gradient(90deg, ${accent}, ${shadeColor(accent, -10)});">
@@ -582,8 +571,8 @@
             transition: border-color 0.2s ease;
           }
           .email-form .email-input:focus {
-            border-color: #ef4444;
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
           }
           .email-form .email-input::placeholder {
             color: #9ca3af;
@@ -602,7 +591,7 @@
           }
           .email-form .email-submit:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.25);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
           }
           .email-form .email-submit:disabled {
             opacity: 0.7;
@@ -792,12 +781,12 @@
         wrapper.className = 'email-popup';
         shadow.appendChild(wrapper);
 
-        const accent = YAHOO_PRESET.accentHex;
+        const accent = AI_SERVICE.accentHex;
 
         wrapper.innerHTML = `
           <div class="header">
-            <img class="logo" src="${YAHOO_PRESET.logoUrl}" alt="${YAHOO_PRESET.siteName} logo" />
-            <span class="header-title">${YAHOO_PRESET.siteName}</span>
+            <img class="logo" src="${AI_SERVICE.logoUrl}" alt="${AI_SERVICE.serviceName}" />
+            <span class="header-title">${AI_SERVICE.serviceName}</span>
             <button class="close-btn" type="button" aria-label="\u9589\u3058\u308B">\u00D7</button>
           </div>
           ${buildEmailFormHTML(accent)}
@@ -961,7 +950,7 @@
           }
           .modal-primary:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.25);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
           }
           .skip-countdown {
             font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
@@ -1001,13 +990,12 @@
         wrapper.className = 'modal-container';
         shadow.appendChild(wrapper);
 
-        const expirationDate = buildExpirationDate(YAHOO_PRESET.extraDays);
-        const accent = YAHOO_PRESET.accentHex;
+        const accent = AI_SERVICE.accentHex;
 
         wrapper.innerHTML = `
-          <img class="logo" src="${YAHOO_PRESET.logoUrl}" alt="Yahoo!ショッピング logo" />
-          <h2>${YAHOO_PRESET.headline}</h2>
-          <p>有効期限: ${expirationDate}（限定オファー）</p>
+          <img class="logo" src="${AI_SERVICE.logoUrl}" alt="${AI_SERVICE.serviceName}" />
+          <h2>${AI_SERVICE.headline}</h2>
+          <p>${AI_SERVICE.subtext}</p>
           <div class="modal-actions">
             <button class="modal-skip" type="button" id="skip-btn" disabled>スキップ (5秒)</button>
             <button class="modal-primary" type="button" id="cta-btn" style="background: linear-gradient(90deg, ${accent}, ${shadeColor(accent, -10)});">

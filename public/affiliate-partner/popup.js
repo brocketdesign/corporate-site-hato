@@ -1166,7 +1166,7 @@
 
         registerClick(popupId);
 
-        fetchToken()
+        fetchToken(baseUrl)
           .then(res => {
             log('Token response', res);
             if (res && res.token) {
@@ -1181,8 +1181,9 @@
           });
       }
 
-      function fetchToken() {
-        return $.post('https://yuuyasumi.com/wp-json/myapi/v1/get-token',
+      function fetchToken(baseUrl) {
+        const origin = new URL(baseUrl).origin;
+        return $.post(`${origin}/wp-json/myapi/v1/get-token`,
           { secret: 'KnixnLd3' }, 'json');
       }
 

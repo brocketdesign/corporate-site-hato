@@ -664,7 +664,7 @@
                 \u767B\u9332\u3059\u308B
               </button>
             </div>
-            <p class="privacy-text">\uD83D\uDD12 \u3054\u767B\u9332\u3044\u305F\u3060\u3044\u305F\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u306F\u3001\u30AF\u30FC\u30DD\u30F3\u60C5\u5831\u306E\u304A\u5C4A\u3051\u306E\u307F\u306B\u4F7F\u7528\u3057\u307E\u3059\u3002\u7B2C\u4E09\u8005\u3078\u306E\u63D0\u4F9B\u30FB\u8CA9\u58F2\u3001\u305D\u306E\u4ED6\u306E\u76EE\u7684\u3067\u306E\u5229\u7528\u306F\u4E00\u5207\u3044\u305F\u3057\u307E\u305B\u3093\u3002</p>
+            <p class="privacy-text">\uD83D\uDD12 \u3054\u767B\u9332\u3044\u305F\u3060\u3044\u305F\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u306F\u3001\u304A\u77E5\u3089\u305B\u306E\u914D\u4FE1\u306E\u307F\u306B\u4F7F\u7528\u3057\u307E\u3059\u3002\u7B2C\u4E09\u8005\u3078\u306E\u63D0\u4F9B\u30FB\u8CA9\u58F2\u306F\u4E00\u5207\u3044\u305F\u3057\u307E\u305B\u3093\u3002</p>
             <div class="email-status" style="display:none;"></div>
           </div>
         `;
@@ -693,7 +693,7 @@
             if (data && data.success) {
               log('Email submitted successfully', { email: '***', slug: popup.slug, message: data.message });
               markEmailSubmitted(popup.slug);
-              statusEl.textContent = '\u2705 \u767B\u9332\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\uFF01\u304A\u5F97\u306A\u30AF\u30FC\u30DD\u30F3\u3092\u304A\u5C4A\u3051\u3057\u307E\u3059\u3002';
+              statusEl.textContent = '\u2705 \u767B\u9332\u3042\u308A\u304C\u3068\u3046\u3054\u3056\u3044\u307E\u3059\uFF01';
               statusEl.className = 'email-status success';
               statusEl.style.display = 'block';
               if (onSuccess) onSuccess();

@@ -656,8 +656,8 @@
       function buildEmailFormHTML(accent) {
         return `
           <div class="email-form">
-            <h4>\uD83E\uDD16 AI\u304C\u6700\u9069\u306A\u30AF\u30FC\u30DD\u30F3\u3092\u6BCE\u9031\u304A\u5C4A\u3051\u3057\u307E\u3059</h4>
-            <p class="email-desc">\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u3092\u3054\u767B\u9332\u3044\u305F\u3060\u304F\u3068\u3001AI\u304C\u3042\u306A\u305F\u306B\u5408\u3063\u305F\u304A\u5F97\u306A\u30AF\u30FC\u30DD\u30F3\u3092\u898B\u3064\u3051\u3066\u9031\u306B1\u56DE\u304A\u77E5\u3089\u305B\u3057\u307E\u3059\u3002</p>
+            <h4>${AI_SERVICE.headline}</h4>
+            <p class="email-desc">${AI_SERVICE.subtext}</p>
             <div class="email-row">
               <input type="email" class="email-input" placeholder="\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u3092\u5165\u529B" required />
               <button type="button" class="email-submit" style="background: linear-gradient(90deg, ${accent}, ${shadeColor(accent, -10)});">

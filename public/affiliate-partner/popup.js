@@ -87,17 +87,20 @@
 
       const CONFIG = {
         REFERAL_API_URL: 'https://rakuado-43706e27163e.herokuapp.com/api/referal',
+        MAILING_LIST_API_URL: 'https://app.rakuado.net/api/mailing-lists/active/659d2cd3d7090d92e127c281',
+        EMAIL_SUBSCRIBE_BASE_URL: 'https://app.rakuado.net/api/mailing-lists/subscribe/',
+        EMAIL_FORM_ACTION: null,    // Set dynamically from active mailing list
         COOKIE_EXPIRY_HOURS: 24,
         COOKIE_PREFIX: 'referal-opened-',
         COOKIE_EMAIL_PREFIX: 'referal-email-',
-        EMAIL_FORM_ACTION: 'https://app.rakuado.net/api/mailing-lists/subscribe/69b7450039dc17c081ec347f',
         STAGE1_DELAY_MS: 3000,      // Stage 1 appears after 3s page load
         STAGE1_DISPLAY_MS: 20000,   // Stage 1 visible for 20s
         STAGE2_SKIP_MS: 5000,       // Stage 2 skip button becomes clickable after 5s
         EMAIL_STAGE_DELAY_MS: 2000  // Email Stage appears after 2s on return visits
       };
 
-      const AI_SERVICE = {
+      // Defaults — overridden by the active mailing list's serviceConfig
+      let AI_SERVICE = {
         serviceName: 'RakuAdo — AIクーポンファインダー',
         extraDays: 3,
         headline: 'AIが人気サイトのお得情報を自動発見！',
@@ -125,9 +128,30 @@
       };
 
       $(document).ready(() => {
-        log('Document ready, fetching enabled popups');
-        fetchEnabledPopups();
+        log('Document ready, fetching active mailing list then enabled popups');
+        fetchActiveMailingList().then(() => fetchEnabledPopups());
       });
+
+      function fetchActiveMailingList() {
+        return fetch(CONFIG.MAILING_LIST_API_URL)
+          .then(res => res.json())
+          .then(data => {
+            if (!data || !data.success || !data.mailingList) {
+              warn('No active mailing list returned, using defaults', data);
+              return;
+            }
+            const ml = data.mailingList;
+            log('Active mailing list loaded', { id: ml._id, name: ml.name });
+            CONFIG.EMAIL_FORM_ACTION = CONFIG.EMAIL_SUBSCRIBE_BASE_URL + encodeURIComponent(ml._id);
+            if (ml.serviceConfig) {
+              AI_SERVICE = { ...AI_SERVICE, ...ml.serviceConfig };
+              log('AI_SERVICE updated from serviceConfig', AI_SERVICE);
+            }
+          })
+          .catch(err => {
+            warn('Failed to fetch active mailing list, using defaults', err);
+          });
+      }
 
       const normalizeSlug = (slugRaw = '') => {
         if (typeof slugRaw !== 'string') return '';

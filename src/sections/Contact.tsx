@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Mail, Phone, MapPin, Send, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, MapPin, Send, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const Contact = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -77,12 +77,6 @@ const Contact = () => {
       label: 'メール',
       value: 'contact@hatoltd.com',
       href: 'mailto:contact@hatoltd.com',
-    },
-    {
-      icon: <Phone className="w-5 h-5" />,
-      label: '電話',
-      value: '03-XXXX-XXXX',
-      href: 'tel:03-XXXX-XXXX',
     },
     {
       icon: <MapPin className="w-5 h-5" />,

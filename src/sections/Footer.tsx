@@ -167,15 +167,26 @@ const Footer = () => {
         {/* Divider */}
         <div className="border-t border-[#2c323a] pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Copyright */}
-            <p
-              className={`text-[#6a6a6a] text-sm transition-all duration-400 ${
-                isVisible ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{ transitionDelay: '800ms' }}
-            >
-              © 2026 合同会社はと. All rights reserved.
-            </p>
+            {/* Copyright & Legal */}
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <p
+                className={`text-[#6a6a6a] text-sm transition-all duration-400 ${
+                  isVisible ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{ transitionDelay: '800ms' }}
+              >
+                © 2026 合同会社はと. All rights reserved.
+              </p>
+              <a
+                href="/tokusho.html"
+                className={`text-[#6a6a6a] hover:text-[#a1f65e] text-sm transition-all duration-300 whitespace-nowrap ${
+                  isVisible ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{ transitionDelay: '850ms' }}
+              >
+                特定商取引法に基づく表記
+              </a>
+            </div>
 
             {/* Social Links */}
             <div className="flex items-center gap-4">

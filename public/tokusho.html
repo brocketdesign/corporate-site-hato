@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>特定商取引法に基づく表記 | HATO Ltd.</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+      background: #f0f0f0;
+      color: #1d2229;
+      line-height: 1.8;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #1d2229;
+      border-top: 4px solid;
+      border-image: linear-gradient(90deg, #a1f65e, #524ff5, #a1f65e) 1;
+      padding: 20px 0;
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      text-decoration: none;
+    }
+    .logo span { color: #a1f65e; }
+    .back-link {
+      font-size: 13px;
+      color: #a1a1a1;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #a1f65e; }
+    .back-link::before { content: '←'; }
+
+    /* ── Main ── */
+    main {
+      max-width: 900px;
+      margin: 40px auto 80px;
+      padding: 0 24px;
+    }
+
+    .page-hero {
+      background: #1d2229;
+      border-radius: 16px;
+      padding: 40px 40px 32px;
+      margin-bottom: 40px;
+    }
+    .page-hero h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+    .page-hero p {
+      font-size: 14px;
+      color: #a1a1a1;
+    }
+    .page-hero .dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #a1f65e;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    /* ── Table ── */
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      margin-bottom: 32px;
+    }
+    .card-header {
+      background: #1d2229;
+      padding: 16px 32px;
+    }
+    .card-header h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #a1f65e;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    tr { border-bottom: 1px solid #f0f0f0; }
+    tr:last-child { border-bottom: none; }
+    tr:nth-child(even) td { background: #fafafa; }
+    th, td {
+      padding: 18px 32px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+    th {
+      width: 220px;
+      font-weight: 600;
+      color: #1d2229;
+      white-space: nowrap;
+    }
+    td {
+      color: #3a3a3a;
+      line-height: 1.8;
+    }
+    td a {
+      color: #524ff5;
+      text-decoration: none;
+    }
+    td a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .page-hero { padding: 28px 20px; }
+      .page-hero h1 { font-size: 20px; }
+      .card-header { padding: 14px 20px; }
+      th, td { padding: 14px 20px; }
+      th { width: 100%; display: block; font-size: 13px; color: #524ff5; padding-bottom: 4px; border-bottom: none; }
+      td { display: block; padding-top: 0; }
+      tr { display: block; padding: 4px 0; }
+    }
+
+    /* ── Notice ── */
+    .notice {
+      background: #fffbe6;
+      border-left: 4px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      font-size: 13px;
+      color: #92400e;
+      margin-top: 32px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: #1d2229;
+      padding: 32px 24px;
+      text-align: center;
+    }
+    footer p {
+      font-size: 12px;
+      color: #6a6a6a;
+    }
+    footer a {
+      color: #a1a1a1;
+      text-decoration: none;
+    }
+    footer a:hover { color: #a1f65e; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <a href="/" class="logo">HATO <span>Ltd.</span></a>
+      <a href="/" class="back-link">トップページに戻る</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <h1><span class="dot"></span>特定商取引法に基づく表記</h1>
+      <p>合同会社はとは、特定商取引に関する法律（特定商取引法）第11条に基づき、以下の情報を開示します。</p>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="card">
+      <div class="card-header"><h2>販売業者情報</h2></div>
+      <table>
+        <tr>
+          <th>販売業者名</th>
+          <td>合同会社はと</td>
+        </tr>
+        <tr>
+          <th>代表者名</th>
+          <td>Dankwart Brockerhoff</td>
+        </tr>
+        <tr>
+          <th>所在地</th>
+          <td>〒530-0001<br>大阪府大阪市北区梅田1-2-2<br>大阪駅前第2ビル12-12</td>
+        </tr>
+        <tr>
+          <th>電話番号</th>
+          <td>+81 72-200-3399</td>
+        </tr>
+        <tr>
+          <th>メールアドレス</th>
+          <td><a href="mailto:contact@hatoltd.com">contact@hatoltd.com</a></td>
+        </tr>
+        <tr>
+          <th>サービスURL</th>
+          <td><a href="https://hatoltd.com" target="_blank" rel="noopener noreferrer">https://hatoltd.com</a></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 商品・サービス -->
+    <div class="card">
+      <div class="card-header"><h2>商品・サービスについて</h2></div>
+      <table>
+        <tr>
+          <th>販売商品・サービス</th>
+          <td>
+            AIアプリケーション開発・提供、データ分析・予測サービス、AIチャットボット・カスタマーサポート自動化、BIダッシュボード構築、AIコンサルティングおよびシステム開発。<br>
+            主要プロダクト：Seisei（AI生成コンテンツツール）、RakuAdo（AI広告最適化ツール）、RakuBun（AI記事生成ツール）
+          </td>
+        </tr>
+        <tr>
+          <th>販売価格</th>
+          <td>各サービスページに記載の金額（消費税込）。<br>
+            サブスクリプション型サービスについては、プラン選択時に表示される月額または年額料金が適用されます。</td>
+        </tr>
+        <tr>
+          <th>商品代金以外の必要料金</th>
+          <td>なし（別途費用が発生する場合は、お申し込み前に明示します）</td>
+        </tr>
+        <tr>
+          <th>支払方法</th>
+          <td>クレジットカード（Visa・Mastercard・American Express・JCB）、その他Stripeが対応する決済手段</td>
+        </tr>
+        <tr>
+          <th>支払時期</th>
+          <td>お申し込み手続き完了時にお支払いが確定します。サブスクリプションサービスの場合は、契約開始日および以降の各更新日に自動課金されます。</td>
+        </tr>
+        <tr>
+          <th>サービス提供時期</th>
+          <td>お支払い確認後、原則として即時にサービスをご利用いただけます。カスタム開発・コンサルティングについては、別途契約書に定める納期に従います。</td>
+        </tr>
+        <tr>
+          <th>動作環境</th>
+          <td>最新バージョンのウェブブラウザ（Google Chrome、Mozilla Firefox、Microsoft Edge、Safari）推奨。インターネット接続環境が必要です。</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- キャンセル・返金 -->
+    <div class="card">
+      <div class="card-header"><h2>キャンセル・返品・返金</h2></div>
+      <table>
+        <tr>
+          <th>サブスクリプションの解約</th>
+          <td>マイページまたはメールにてご解約申請いただけます。解約申請が受理された時点の契約期間末日をもってサービスを終了し、翌期以降の課金は発生しません。<br>
+          <small>※ 期間途中での日割り返金は原則行っておりません。</small></td>
+        </tr>
+        <tr>
+          <th>返品・返金について</th>
+          <td>デジタルコンテンツ・ソフトウェアサービスの性質上、お支払い完了後の返品・返金は原則として承っておりません。<br>
+          ただし、当社サービスの重大な瑕疵または法令に基づく場合は、個別にご対応いたします。</td>
+        </tr>
+        <tr>
+          <th>お問い合わせ</th>
+          <td>上記に関するご質問は <a href="mailto:contact@hatoltd.com">contact@hatoltd.com</a> までメールにてお問い合わせください。</td>
+        </tr>
+      </table>
+    </div>
+
+    <p class="notice">
+      ※ 本ページの内容は予告なく変更する場合があります。最新の情報をご確認ください。
+    </p>
+  </main>
+
+  <footer>
+    <p>© 2026 合同会社はと. All rights reserved. ／ <a href="/">トップページ</a></p>
+  </footer>
+
+</body>
+</html>

@@ -178,7 +178,7 @@ const Footer = () => {
                 © 2026 合同会社はと. All rights reserved.
               </p>
               <a
-                href="/tokusho.html"
+                href="/tokusho"
                 className={`text-[#6a6a6a] hover:text-[#a1f65e] text-sm transition-all duration-300 whitespace-nowrap ${
                   isVisible ? 'opacity-100' : 'opacity-0'
                 }`}

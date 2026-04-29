@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Popup Preview</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1e0a3c 0%, #2d1055 60%, #1a0a4e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .info {
+      text-align: center;
+      opacity: 0.5;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="info">Popup will appear in 1 second…</div>
+
+  <script>
+    // Mock fetch so the popup script gets a fake enabled popup instantly
+    const _originalFetch = window.fetch;
+    window.fetch = function(url, opts) {
+      if (typeof url === 'string' && url.includes('/referal/enabled')) {
+        return Promise.resolve({
+          json: () => Promise.resolve([
+            {
+              _id: 'preview-001',
+              slug: 'preview-popup',
+              targetUrl: 'https://example.com',
+              enabled: true
+            }
+          ])
+        });
+      }
+      // Let register-view / register-click calls silently succeed
+      if (typeof url === 'string' && url.includes('/referal/')) {
+        return Promise.resolve({ json: () => Promise.resolve({}) });
+      }
+      return _originalFetch(url, opts);
+    };
+
+    // Prevent redirect & background tab during preview
+    window.open = function() { console.log('[Preview] window.open suppressed'); };
+    // Suppress location changes by overriding the assign/replace methods
+    const _origAssign = window.location.assign.bind(window.location);
+    window.location.assign = function(v) { console.log('[Preview] location.assign suppressed →', v); };
+    window.location.replace = function(v) { console.log('[Preview] location.replace suppressed →', v); };
+  </script>
+
+  <!-- Load the popup widget (POPUP_DELAY_MS patched to 1s via console override below) -->
+  <script>
+    // Patch setTimeout once so the first 3000ms call fires in 800ms for a snappier preview
+    const _origTimeout = window.setTimeout;
+    let _patched = false;
+    window.setTimeout = function(fn, delay, ...rest) {
+      if (!_patched && delay === 3000) {
+        _patched = true;
+        return _origTimeout(fn, 800, ...rest);
+      }
+      return _origTimeout(fn, delay, ...rest);
+    };
+  </script>
+  <script src="popup.js"></script>
+</body>
+</html>
